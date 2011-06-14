@@ -703,10 +703,10 @@
 	            font-weight="bold"
 	            space-before="10pt"
 	            space-after="10pt">
-	            <xsl:apply-templates select ="unittitle"/>
-	            <xsl:if test="unitdate">
+	            <xsl:apply-templates select ="$node/did/unittitle"/>
+	            <xsl:if test="$node/did/unitdate">
 	                <xsl:text>, </xsl:text>
-	                <xsl:value-of select="unitdate"/>
+	                <xsl:value-of select="$node/did/unitdate"/>
 	            </xsl:if>
 	        </fo:block>
             <!-- did for this component -->
