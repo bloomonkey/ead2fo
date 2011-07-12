@@ -969,6 +969,23 @@
         </xsl:for-each>
     </xsl:template>
     
+    <xsl:template match="langmaterial|langusage">
+    	<xsl:choose>
+    		<xsl:when test="not(./text())">
+    			<xsl:for-each select="language">
+    				<xsl:apply-templates />
+    				<xsl:if test="position() &lt; count(../language)">
+    					<xsl:text>, </xsl:text>
+    				</xsl:if>
+    			</xsl:for-each>
+    		</xsl:when>
+    		<xsl:otherwise>
+    			<xsl:apply-templates />
+    		</xsl:otherwise>
+    	</xsl:choose>
+    </xsl:template>
+    
+    
     <xsl:template match="head">
         <xsl:if test="./text()">
             <xsl:call-template name="section-header">
