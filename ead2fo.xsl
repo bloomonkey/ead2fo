@@ -141,7 +141,7 @@
             </fo:layout-master-set>
             
             <!-- front page -->
-            <fo:page-sequence master-reference="title-sequence">
+            <fo:page-sequence master-reference="title-sequence" format="i">
                 <xsl:call-template name="fo-country"/>
                 <xsl:call-template name="fo-language"/>
                 <fo:flow flow-name="xsl-region-body">
@@ -165,7 +165,7 @@
             </fo:page-sequence>
             
             <!-- front-matter pages -->
-            <fo:page-sequence master-reference="frontmatter-sequence">
+            <fo:page-sequence master-reference="frontmatter-sequence" format="i">
                 <xsl:call-template name="fo-country"/>
                 <xsl:call-template name="fo-language"/>
                 <fo:flow flow-name="xsl-region-body">
@@ -180,7 +180,7 @@
                 <xsl:text>Contents</xsl:text>
             </xsl:variable>
             
-            <fo:page-sequence master-reference="toc-sequence">
+            <fo:page-sequence master-reference="toc-sequence" format="i">
                 <xsl:call-template name="fo-country"/>
                 <xsl:call-template name="fo-language"/>
                 <fo:title>
@@ -309,6 +309,17 @@
             font-weight="bold"
             space-before="6pt"
             space-after="6pt"
+            keep-with-next="always">
+            <xsl:value-of select="$text"/>
+        </fo:block>
+    </xsl:template>
+    
+    <xsl:template name="subsection-header">
+        <xsl:param name="text"/>
+        <fo:block
+            font-weight="bold"
+            space-before="3pt"
+            space-after="3pt"
             keep-with-next="always">
             <xsl:value-of select="$text"/>
         </fo:block>
@@ -588,7 +599,7 @@
     
     <!-- templates for Table of Contents (toc) -->
     
-    <xsl:template match="archdesc" mode="toc">
+    <xsl:template match="archdesc">
         <xsl:call-template name="toc-line">
           <xsl:with-param name="node" select="/ead/archdesc"/>
         </xsl:call-template>
@@ -605,7 +616,8 @@
         </xsl:for-each>
     </xsl:template>
 
-    <xsl:template name="toc-c" match="c|c01|c02|c03|c04|c05|c06|c07|c08|c09|c10|c11|c12">
+    <xsl:template name="toc-c"
+    	match="c|c01|c02|c03|c04|c05|c06|c07|c08|c09|c10|c11|c12">
         <xsl:call-template name="toc-line">
             <xsl:with-param name="node" select="."/>
         </xsl:call-template>
@@ -677,13 +689,14 @@
                     <fo:block/>
                 </fo:static-content>
                 <fo:flow flow-name="xsl-region-body">
-	                <xsl:call-template name="all-component" />
+	                <xsl:call-template name="all-component"/>
                 </fo:flow>
             </fo:page-sequence>
         </xsl:for-each>
     </xsl:template>
     
-	<xsl:template name="all-component" match="c|c01|c02|c03|c04|c05|c06|c07|c08|c09|c10|c11|c12">
+	<xsl:template name="all-component" 
+		match="c|c01|c02|c03|c04|c05|c06|c07|c08|c09|c10|c11|c12">
         <xsl:if test="not(@audience and @audience = 'internal')">
             <xsl:call-template name="single-unit">
                 <xsl:with-param name="node" select="."/>
@@ -784,13 +797,12 @@
     
     <xsl:template match="did">
         <fo:table table-layout="fixed" width="100%">
-            <fo:table-column column-width="25%"/>
-            <fo:table-column column-width="75%"/>
+            <fo:table-column column-width="35%"/>
+            <fo:table-column column-width="65%"/>
             <fo:table-body>
                 
                 <fo:table-row>
-                    <fo:table-cell
-                        font-weight="bold">
+                    <fo:table-cell>
                         <fo:block>Reference</fo:block>
                     </fo:table-cell>
                     <fo:table-cell>
@@ -804,8 +816,7 @@
                 
                 <xsl:if test="origination">
                     <fo:table-row>
-	                    <fo:table-cell
-	                        font-weight="bold">
+	                    <fo:table-cell>
 	                        <fo:block>Creator</fo:block>
 	                    </fo:table-cell>
 	                    <fo:table-cell>
@@ -821,8 +832,7 @@
                 
                 <xsl:if test="physdesc">
                     <fo:table-row>
-                        <fo:table-cell
-                            font-weight="bold">
+                        <fo:table-cell>
                             <fo:block>Physical Description</fo:block>
                         </fo:table-cell>
                         <fo:table-cell>
@@ -835,8 +845,7 @@
                             
                 <xsl:if test="langmaterial|../langmaterial">
                     <fo:table-row>
-                        <fo:table-cell
-                        font-weight="bold">
+                        <fo:table-cell>
                             <fo:block>Language of Material</fo:block>
                         </fo:table-cell>
                         <fo:table-cell>
@@ -856,8 +865,7 @@
                 
                 <xsl:if test = "physloc">
                     <fo:table-row>
-                        <fo:table-cell
-                            font-weight="bold">
+                        <fo:table-cell>
                             <fo:block>Location</fo:block>
                         </fo:table-cell>
                         <fo:table-cell>
@@ -971,7 +979,7 @@
     
     <xsl:template match="langmaterial|langusage">
     	<xsl:choose>
-    		<xsl:when test="not(./text())">
+    		<xsl:when test="not(normalize-space(./text()))">
     			<xsl:for-each select="language">
     				<xsl:apply-templates />
     				<xsl:if test="position() &lt; count(../language)">
@@ -1449,133 +1457,250 @@
         
             <!-- Subjects -->
             <xsl:if test="subject">
-                <fo:block>Subjects</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="subject">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Subjects</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="subject">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
                 
             <!-- Personal Names -->
             <xsl:if test="persname">
-                <fo:block>Personal Names</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="persname">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+                <fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Personal Names</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="persname">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <!-- Family Names -->
             <xsl:if test="famname">
-                <fo:block>Family Names</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="famname">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Family Names</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="famname">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <!-- Corporate Names -->
             <xsl:if test="corpname">
-                <fo:block>Corporate Names</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="corpname">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Corporate Names</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="corpname">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <!-- Geographical Names -->
             <xsl:if test="geogname">
-                <fo:block>Geographical Names</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="geogname">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Geographical Names</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="geogname">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <xsl:if test="title">
-                <fo:block>Titles</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="title">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Titles</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="title">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <xsl:if test="function">
-                <fo:block>Functions</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="function">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Functions</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="function">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <xsl:if test="genreform">
-                <fo:block>Genre/Form</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="genreform">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Genre/Form</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="genreform">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <xsl:if test="occupation">
-                <fo:block>Occupation</fo:block>
-                <fo:list-block>
-                    <xsl:for-each select="occupation">
-                        <fo:list-item>
-                            <fo:list-item-label><fo:block/></fo:list-item-label>
-                            <fo:list-item-body>
-                                <fo:block><xsl:apply-templates/></fo:block>
-                            </fo:list-item-body>
-                        </fo:list-item>
-                    </xsl:for-each>
-                </fo:list-block>
+            	<fo:block
+	            space-before="3pt"
+	            space-after="3pt">
+		            <xsl:if test="@id">
+		                <xsl:attribute name="id">
+		                    <xsl:value-of select="@id"/>
+		                </xsl:attribute>
+		            </xsl:if>
+		            <xsl:call-template name="subsection-header">
+	                    <xsl:with-param name="text">
+		                    <xsl:text>Occupations</xsl:text>
+	                    </xsl:with-param>
+	                </xsl:call-template>
+	                <fo:list-block>
+	                    <xsl:for-each select="occupation">
+	                        <fo:list-item>
+	                            <fo:list-item-label><fo:block/></fo:list-item-label>
+	                            <fo:list-item-body>
+	                                <fo:block><xsl:apply-templates/></fo:block>
+	                            </fo:list-item-body>
+	                        </fo:list-item>
+	                    </xsl:for-each>
+	                </fo:list-block>
+                </fo:block>
             </xsl:if>
             
             <xsl:apply-templates select="controlaccess" />
