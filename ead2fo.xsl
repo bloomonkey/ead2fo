@@ -5,7 +5,10 @@
   version="1.0">
   
     <xsl:output method="xml"/>
-       
+
+	<!-- include configurations from external file -->
+    <xsl:include href="./configuration.xsl"/>
+    
     <!-- Set up the XSL-FO output -->
     
     <xsl:template match="/">
