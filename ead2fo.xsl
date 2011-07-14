@@ -175,11 +175,6 @@
                 </fo:flow>
             </fo:page-sequence>
             
-            <!-- Table of Contents page(s) -->
-            <xsl:variable name="contents-title">
-                <xsl:text>Contents</xsl:text>
-            </xsl:variable>
-            
             <fo:page-sequence master-reference="toc-sequence" format="i">
                 <xsl:call-template name="fo-country"/>
                 <xsl:call-template name="fo-language"/>
