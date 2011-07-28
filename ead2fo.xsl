@@ -150,15 +150,15 @@
                         font-size="16pt"
                         font-weight="bold">
                         <xsl:choose>
-                            <xsl:when test="/ead/eadheader/filedesc/titlestmt/titleproper">
-                                <xsl:apply-templates select="/ead/eadheader/filedesc/titlestmt/titleproper"/>
-                            </xsl:when>
-			                <xsl:when test="/ead/archdesc/did/unittitle">
-			                    <xsl:apply-templates select="/ead/archdesc/did/unittitle"/>
-			                </xsl:when>
-			                <xsl:otherwise>
-			                    <xsl:text>Untitled</xsl:text>
-			                </xsl:otherwise>
+							<xsl:when test="/ead/archdesc/did/unittitle">
+								<xsl:apply-templates select="/ead/archdesc/did/unittitle"/>
+							</xsl:when>
+							<xsl:when test="/ead/eadheader/filedesc/titlestmt/titleproper">
+								<xsl:apply-templates select="/ead/eadheader/filedesc/titlestmt/titleproper"/>
+							</xsl:when>
+							<xsl:otherwise>
+							    <xsl:text>Untitled</xsl:text>
+							</xsl:otherwise>
 			            </xsl:choose>
                     </fo:block>
                 </fo:flow>
@@ -175,30 +175,31 @@
                 </fo:flow>
             </fo:page-sequence>
             
-            <fo:page-sequence master-reference="toc-sequence" format="i">
-                <xsl:call-template name="fo-country"/>
-                <xsl:call-template name="fo-language"/>
-                <fo:title>
-                    <xsl:value-of select="$contents-title"/>
-                </fo:title>
-                <fo:static-content flow-name="xsl-region-before">
-                    <fo:block 
-                        border-bottom="1pt solid black">
-                        <fo:block>
-                            <xsl:value-of select="$contents-title"/>
-                        </fo:block>
-                    </fo:block>
-                </fo:static-content>
-                <fo:flow flow-name="xsl-region-body">
-                    <fo:block
-			            font-size="14pt"
-			            font-weight="bold"
-			            space-after="10pt">
-			            <xsl:value-of select="$contents-title"/>
-			        </fo:block>
-                    <xsl:apply-templates select="/ead/archdesc" mode="toc"/>
-                </fo:flow>
-            </fo:page-sequence>
+            <xsl:if test="/ead/archdesc/dsc">
+	            <fo:page-sequence master-reference="toc-sequence" format="i">
+	                <xsl:call-template name="fo-country"/>
+	                <xsl:call-template name="fo-language"/>
+	                <fo:title>
+	                    <xsl:value-of select="$contents-title"/>
+	                </fo:title>
+	                <fo:static-content flow-name="xsl-region-before">
+	                    <fo:block border-bottom="1px solid black">
+	                        <fo:block>
+	                            <xsl:value-of select="$contents-title"/>
+	                        </fo:block>
+	                    </fo:block>
+	                </fo:static-content>
+	                <fo:flow flow-name="xsl-region-body">
+	                    <fo:block
+				            font-size="14pt"
+				            font-weight="bold"
+				            space-after="10pt">
+				            <xsl:value-of select="$contents-title"/>
+				        </fo:block>
+	                   	<xsl:apply-templates select="/ead/archdesc" mode="toc"/>
+	                </fo:flow>
+	            </fo:page-sequence>
+          	</xsl:if>
             
             <!-- Actual content pages -->
             
@@ -610,9 +611,8 @@
             </xsl:if>
         </xsl:for-each>
     </xsl:template>
-
-    <xsl:template name="toc-c"
-    	match="c|c01|c02|c03|c04|c05|c06|c07|c08|c09|c10|c11|c12">
+    
+    <xsl:template name="toc-c">
         <xsl:call-template name="toc-line">
             <xsl:with-param name="node" select="."/>
         </xsl:call-template>
@@ -632,6 +632,15 @@
         <fo:block
             text-align-last="justify"
             font-size="10pt">
+            <!-- treat c01 specially, space before and bold text -->
+            <xsl:if test="local-name($node) = 'c01'">
+            	<xsl:attribute name="font-weight">
+            		<xsl:text>bold</xsl:text>
+            	</xsl:attribute>
+            	<xsl:attribute name="padding-top">
+            		<xsl:text>0.5em</xsl:text>
+            	</xsl:attribute>
+            </xsl:if>
             <xsl:if test="$node/did/unitid">
 	            <xsl:value-of select="$node/did/unitid"/>
 	            <xsl:text>: </xsl:text>
@@ -719,12 +728,14 @@
 	        </fo:block>
             <!-- did for this component -->
             <!-- I would like to use float for DAOs but they are not supported by Apache FOP
-                have to use a hack table instead :(
+                have to use a nasty table instead :(
              -->
             <xsl:choose>
                 <xsl:when test="$node/dao|$node/did/dao|$node/daogrp|$node/did/daogrp">
                     
-                    <fo:table table-layout="fixed" width="100%">
+                    <fo:table table-layout="fixed"
+                              width="100%"
+                              keep-with-previous="always">
 			            <fo:table-column column-width="75%"/>
 			            <fo:table-column column-width="25%"/>
 			            <fo:table-body>
@@ -791,9 +802,12 @@
     </xsl:template>
     
     <xsl:template match="did">
-        <fo:table table-layout="fixed" width="100%">
-            <fo:table-column column-width="35%"/>
-            <fo:table-column column-width="65%"/>
+        <fo:table table-layout="fixed"
+                  width="100%" 
+                  keep-with-previous="always">
+            <fo:table-column column-width="20%"/>
+            <fo:table-column column-width="80%"/>
+            
             <fo:table-body>
                 
                 <fo:table-row>
