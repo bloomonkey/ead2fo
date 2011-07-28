@@ -723,41 +723,36 @@
 	            </xsl:if>
 	        </fo:block>
             <!-- did for this component -->
-            <!-- I would like to use float for DAOs but they are not supported by Apache FOP
-                have to use a nasty table instead :(
-             -->
-            <xsl:choose>
-                <xsl:when test="$node/dao|$node/did/dao|$node/daogrp|$node/did/daogrp">
-                    
-                    <fo:table table-layout="fixed"
-                              width="100%"
-                              keep-with-previous="always">
-			            <fo:table-column column-width="75%"/>
-			            <fo:table-column column-width="25%"/>
-			            <fo:table-body>
-			                <fo:table-row>
-			                    <fo:table-cell>
-			                        <xsl:apply-templates select="$node/did"/>
-			                    </fo:table-cell>
-			                    <fo:table-cell>
-			                    
-				                    <fo:block
-					                   background-color="#ffdddd">
-					                   <fo:block>Digital Objects</fo:block>
-					                   <fo:block>
-					                       <xsl:apply-templates select="$node/dao|$node/did/dao|$node/daogrp|$node/did/daogrp"/>
-					                   </fo:block>
-                                    </fo:block>
-			                    </fo:table-cell>
-			                </fo:table-row>
-			            </fo:table-body>
-			        </fo:table>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:apply-templates select="$node/did"/>
-                </xsl:otherwise>
-            </xsl:choose>
-
+            
+             <fo:table table-layout="fixed"
+                  inline-progression-dimension="100%"
+                  keep-with-previous="always">
+	            <fo:table-column column-number="1" 
+	                             column-width="proportional-column-width(1)"/>
+	            <fo:table-column column-number="2" 
+	                                   column-width="proportional-column-width(4)"/>
+	            <fo:table-body>
+                
+                <xsl:apply-templates select="$node/did"/>
+                
+                    <!-- I would like to use float for DAOs but they are not supported by Apache FOP
+                        have to put them in the table instead :(
+                    -->    
+                    <xsl:if test="$node/dao|$node/did/dao|$node/daogrp|$node/did/daogrp">
+	                    <fo:table-row>
+		                    <fo:table-cell>
+                                <fo:block>Digital Objects</fo:block>
+                            </fo:table-cell>
+                            <fo:table-cell>
+			                   <fo:block>
+			                       <xsl:apply-templates select="$node/dao|$node/did/dao|$node/daogrp|$node/did/daogrp"/>
+			                   </fo:block>
+		                    </fo:table-cell>
+		                </fo:table-row>
+                    </xsl:if>
+                </fo:table-body>
+            </fo:table>
+            
 	        <xsl:apply-templates select="$node/did/note" mode="own-section"/>
 	        <xsl:apply-templates select="$node/scopecontent"/>
 	        <xsl:apply-templates select="$node/bioghist"/>
@@ -798,95 +793,86 @@
     </xsl:template>
     
     <xsl:template match="did">
-        <fo:table table-layout="fixed"
-                  width="100%" 
-                  keep-with-previous="always">
-            <fo:table-column column-width="20%"/>
-            <fo:table-column column-width="80%"/>
-            
-            <fo:table-body>
-                
-                <fo:table-row>
-                    <fo:table-cell>
-                        <fo:block>Reference</fo:block>
-                    </fo:table-cell>
-                    <fo:table-cell>
-                        <fo:block>
-                            <xsl:for-each select="unitid">
-	                            <fo:block><xsl:apply-templates select="."/></fo:block>
-	                        </xsl:for-each>
-                        </fo:block>
-                    </fo:table-cell>
-                </fo:table-row>
-                
-                <xsl:if test="origination">
-                    <fo:table-row>
-	                    <fo:table-cell>
-	                        <fo:block>Creator</fo:block>
-	                    </fo:table-cell>
-	                    <fo:table-cell>
-				            <fo:block 
-				                font-weight="italic"
-				                space-before="10pt"
-				                space-after="10pt">
-				                <xsl:apply-templates select="origination"/>
-				            </fo:block>
-			            </fo:table-cell>
-		            </fo:table-row>
-		        </xsl:if>
-                
-                <xsl:if test="physdesc">
-                    <fo:table-row>
-                        <fo:table-cell>
-                            <fo:block>Physical Description</fo:block>
-                        </fo:table-cell>
-                        <fo:table-cell>
-                            <fo:block>
-                                <xsl:apply-templates select="physdesc"/>
-                            </fo:block>
-                        </fo:table-cell>
-                    </fo:table-row>
-                </xsl:if>
-                            
-                <xsl:if test="langmaterial|../langmaterial">
-                    <fo:table-row>
-                        <fo:table-cell>
-                            <fo:block>Language of Material</fo:block>
-                        </fo:table-cell>
-                        <fo:table-cell>
-                            <fo:block>
-	                            <xsl:choose>
-	                                <xsl:when test="langmaterial">
-	                                    <xsl:apply-templates select="langmaterial"/>
-	                                </xsl:when>
-	                                <xsl:when test="../langmaterial">
-	                                    <xsl:apply-templates select="../langmaterial"/>
-	                                </xsl:when>
-	                            </xsl:choose>
-                            </fo:block>
-                        </fo:table-cell>
-                    </fo:table-row>
-                </xsl:if>
-                
-                <xsl:if test = "physloc">
-                    <fo:table-row>
-                        <fo:table-cell>
-                            <fo:block>Location</fo:block>
-                        </fo:table-cell>
-                        <fo:table-cell>
-                            <fo:block>
-                                <xsl:value-of select="physloc"/>
-                            </fo:block>
-                        </fo:table-cell>
-                    </fo:table-row>
-                </xsl:if>
-            </fo:table-body>
-        </fo:table>                
+      
+        <fo:table-row>
+            <fo:table-cell>
+                <fo:block>Reference</fo:block>
+            </fo:table-cell>
+            <fo:table-cell>
+                <fo:block>
+                    <xsl:for-each select="unitid">
+                     <fo:block><xsl:apply-templates select="."/></fo:block>
+                 </xsl:for-each>
+                </fo:block>
+            </fo:table-cell>
+        </fo:table-row>
+        
+        <xsl:if test="origination">
+            <fo:table-row>
+             <fo:table-cell>
+                 <fo:block>Creator</fo:block>
+             </fo:table-cell>
+             <fo:table-cell>
+		        <fo:block 
+		            font-weight="italic"
+		            space-before="10pt"
+		            space-after="10pt">
+		            <xsl:apply-templates select="origination"/>
+		        </fo:block>
+		       </fo:table-cell>
+		      </fo:table-row>
+		  </xsl:if>
+      
+        <xsl:if test="physdesc">
+            <fo:table-row>
+                <fo:table-cell>
+                    <fo:block>Physical Description</fo:block>
+                </fo:table-cell>
+                <fo:table-cell>
+                    <fo:block>
+                        <xsl:apply-templates select="physdesc"/>
+                    </fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        </xsl:if>
+                    
+        <xsl:if test="langmaterial|../langmaterial">
+            <fo:table-row>
+                <fo:table-cell>
+                    <fo:block>Language of Material</fo:block>
+                </fo:table-cell>
+                <fo:table-cell>
+                    <fo:block>
+                     <xsl:choose>
+                         <xsl:when test="langmaterial">
+                             <xsl:apply-templates select="langmaterial"/>
+                         </xsl:when>
+                         <xsl:when test="../langmaterial">
+                             <xsl:apply-templates select="../langmaterial"/>
+                         </xsl:when>
+                     </xsl:choose>
+                    </fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        </xsl:if>
+        
+        <xsl:if test = "physloc">
+            <fo:table-row>
+                <fo:table-cell>
+                    <fo:block>Location</fo:block>
+                </fo:table-cell>
+                <fo:table-cell>
+                    <fo:block>
+                        <xsl:value-of select="physloc"/>
+                    </fo:block>
+                </fo:table-cell>
+            </fo:table-row>
+        </xsl:if>
     </xsl:template>
     
     <!--DAO - Digital Archival Objects-->  
     <xsl:template match="dao">
-        <fo:block>
+        <fo:block keep-with-previous="always">
             <xsl:choose>
                 <xsl:when test="./@audience = 'internal'" />
                 <xsl:when test="./@href">
@@ -922,7 +908,7 @@
 
     <!-- DAOGRP - representing thumbnail link to main object -->
     <xsl:template name="daogrp-thumb">
-        <fo:block>
+        <fo:block keep-with-previous="always"> 
             <fo:basic-link>
                 <xsl:attribute name="external-destination">
 	                <xsl:value-of select="./daoloc[@role='reference']/@href"/>
@@ -930,9 +916,6 @@
 	            <!--  inner HTML -->
                 <xsl:choose>
                     <xsl:when test="./daoloc/@role='thumb'">
-                        <fo:block>
-                            <xsl:value-of select="./daoloc[@role='thumb']/@href"/>
-                        </fo:block>
                         <fo:external-graphic
                             background-color="#ffffff">
                             <xsl:attribute name="src">
