@@ -196,7 +196,12 @@
 				            space-after="10pt">
 				            <xsl:value-of select="$contents-title"/>
 				        </fo:block>
-	                   	<xsl:apply-templates select="/ead/archdesc" mode="toc"/>
+				        <xsl:call-template name="toc-line">
+				          <xsl:with-param name="node" select="/ead/archdesc"/>
+				        </xsl:call-template>
+				        <fo:block margin-left="10pt">
+				            <xsl:apply-templates select="/ead/archdesc/dsc" mode="toc"/>
+				        </fo:block>
 	                </fo:flow>
 	            </fo:page-sequence>
           	</xsl:if>
@@ -595,15 +600,6 @@
     
     <!-- templates for Table of Contents (toc) -->
     
-    <xsl:template match="archdesc">
-        <xsl:call-template name="toc-line">
-          <xsl:with-param name="node" select="/ead/archdesc"/>
-        </xsl:call-template>
-        <fo:block margin-left="10pt">
-            <xsl:apply-templates select="dsc" mode="toc"/>
-        </fo:block>
-    </xsl:template>
-
     <xsl:template match="dsc" mode="toc">
         <xsl:for-each select="c|c01">
             <xsl:if test="not(./@audience and ./@audience = 'internal')">
