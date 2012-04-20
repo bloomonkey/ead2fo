@@ -4,8 +4,7 @@
   xmlns:fo="http://www.w3.org/1999/XSL/Format"
   version="1.0">
 
-
-	<!-- Table of Contents page(s) -->
+    <!-- Table of Contents page(s) -->
     <xsl:variable name="contents-title">
         <xsl:text>Contents</xsl:text>
     </xsl:variable>
